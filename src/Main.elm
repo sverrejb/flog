@@ -1,5 +1,5 @@
 import Browser
-import Html exposing (Html, Attribute, div, input, text)
+import Html exposing (Html, Attribute, div, input, text, h1, h2)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 
@@ -48,6 +48,8 @@ update msg model =
 view : Model -> Html Msg
 view model =
   div []
-    [ div [] [text ("HELLO WORLD. THIS WILL BE BLOG. BUT, NO BACKEND? IMPOSSIBURU!")], input [ placeholder "Text to reverse", value model.content, onInput Change ] []
-    , div [] [ text (String.reverse model.content) ]
+    [ 
+        h1 [] [text ("HEI, VERDEN")]
+      , h2 [] [text ("Dette skal bli en blogg.")]
+      , text ("Uten en backend.")
     ]
