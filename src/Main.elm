@@ -49,7 +49,8 @@ view : Model -> Html Msg
 view model =
   div []
     [ 
-        h1 [] [text ("HEI, VERDEN")]
-      , h2 [] [text ("Dette skal bli en blogg.")]
-      , text ("Uten en backend.")
+        div [] [text ("Header")]
+      , div [] [text ("Main")]
+      , div [] [text ("Sidebar")]
+      , div [] [text ("Footer")]
     ]
