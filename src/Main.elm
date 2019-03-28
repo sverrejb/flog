@@ -3,7 +3,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, string, list)
+import Json.Decode as Decode exposing (Decoder, field, string, list)
 
 
 
@@ -23,7 +23,8 @@ main =
 -- MODEL
 
 type alias BlogPost
-  = {name : String}
+  = { name : String,
+      id : String}
 
 
 type Model
@@ -93,8 +94,8 @@ viewBlogList model =
     Loading ->
       text "Loading blog posts"
 
-    Success url ->
-      text (String.join "" url)
+    Success blogPosts ->
+      text (Debug.toString blogPosts)
 
 -- HTTP
 
@@ -102,10 +103,15 @@ getBlogList : Cmd Msg
 getBlogList =
   Http.get
     { url = "https://www.googleapis.com/drive/v3/files?q=%271pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak%27%20in%20parents&key=AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
-    , expect = Http.expectJson GotBlogList blogListDecoder
+    , expect = Http.expectJson GotBlogList blogDecoder
     }
 
+blogDecoder : Decoder (List BlogPost)
+blogDecoder = Decode.at ["files"] (Decode.list blogPostDecoder)
 
-blogListDecoder : Decoder BlogPost
-blogListDecoder =
-  Json.Decode.map BlogPost
+blogPostDecoder : Decoder BlogPost
+blogPostDecoder =
+    Decode.map2
+        BlogPost
+        (Decode.at [ "name" ] Decode.string)
+        (Decode.at [ "id" ] Decode.string)
