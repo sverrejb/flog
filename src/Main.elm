@@ -72,6 +72,11 @@ subscriptions model =
 
 -- VIEW
 
+renderList : List BlogPost -> Html msg
+renderList lst =
+    ul []
+        (List.map (\l -> li [] [ text l.name ]) lst)
+
 view : Model -> Html Msg
 view model =
   div []
@@ -95,7 +100,7 @@ viewBlogList model =
       text "Loading blog posts"
 
     Success blogPosts ->
-      text (Debug.toString blogPosts)
+      renderList blogPosts
 
 -- HTTP
 
