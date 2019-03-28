@@ -86,12 +86,12 @@ viewGif model =
   case model of
     Failure ->
       div []
-        [ text "Kunne ikke laste blogg."
+        [ text "Unable to load blog posts."
         , button [ onClick MorePlease ] [ text "Try Again!" ]
         ]
 
     Loading ->
-      text "Loading blogposts"
+      text "Loading blog posts"
 
     Success url ->
       div []
