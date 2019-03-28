@@ -3,7 +3,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, string)
+import Json.Decode exposing (Decoder, field, string, list)
 
 
 
@@ -22,11 +22,14 @@ main =
 
 -- MODEL
 
+type alias BlogPost
+  = {name : String}
+
 
 type Model
-  = Failure
+  = Failure String
   | Loading
-  | Success String
+  | Success (List BlogPost)
 
 
 init : () -> (Model, Cmd Msg)
@@ -40,7 +43,7 @@ init _ =
 
 type Msg
   = MorePlease
-  | GotBlogList (Result Http.Error String)
+  | GotBlogList (Result Http.Error (List BlogPost))
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -54,8 +57,8 @@ update msg model =
         Ok url ->
           (Success url, Cmd.none)
 
-        Err _ ->
-          (Failure, Cmd.none)
+        Err err ->
+          (Failure (Debug.toString err), Cmd.none)
 
 
 
@@ -66,10 +69,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.none
 
-
-
 -- VIEW
-
 
 view : Model -> Html Msg
 view model =
@@ -84,9 +84,9 @@ view model =
 viewBlogList : Model -> Html Msg
 viewBlogList model =
   case model of
-    Failure ->
+    Failure err ->
       div []
-        [ text "Unable to load blog posts."
+        [ text err
         , button [ onClick MorePlease ] [ text "Try Again!" ]
         ]
 
@@ -94,10 +94,7 @@ viewBlogList model =
       text "Loading blog posts"
 
     Success url ->
-      div []
-        [ 
-        text url
-        ]
+      text (String.join "" url)
 
 -- HTTP
 
@@ -109,6 +106,6 @@ getBlogList =
     }
 
 
-blogListDecoder : Decoder String
+blogListDecoder : Decoder BlogPost
 blogListDecoder =
-  field "kind" string
+  Json.Decode.map BlogPost
