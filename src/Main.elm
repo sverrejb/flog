@@ -31,7 +31,7 @@ type Model
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  (Loading, getRandomCatGif)
+  (Loading, getBlogList)
 
 
 
@@ -40,16 +40,16 @@ init _ =
 
 type Msg
   = MorePlease
-  | GotGif (Result Http.Error String)
+  | GotBlogList (Result Http.Error String)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     MorePlease ->
-      (Loading, getRandomCatGif)
+      (Loading, getBlogList)
 
-    GotGif result ->
+    GotBlogList result ->
       case result of
         Ok url ->
           (Success url, Cmd.none)
@@ -76,13 +76,13 @@ view model =
   div []
     [ 
       div [] [ h1 [] [ text "Header" ] ]
-    , div [] [ h2 [] [ text "Content" ], viewGif model ]
+    , div [] [ h2 [] [ text "Content" ], viewBlogList model ]
     , div [] [ h2 [] [text "Footer"]]
     ]
 
 
-viewGif : Model -> Html Msg
-viewGif model =
+viewBlogList : Model -> Html Msg
+viewBlogList model =
   case model of
     Failure ->
       div []
@@ -95,20 +95,20 @@ viewGif model =
 
     Success url ->
       div []
-        [ button [ onClick MorePlease, style "display" "block" ] [ text "More Please!" ]
-        , img [ src url ] []
+        [ 
+        text url
         ]
 
 -- HTTP
 
-getRandomCatGif : Cmd Msg
-getRandomCatGif =
+getBlogList : Cmd Msg
+getBlogList =
   Http.get
-    { url = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
-    , expect = Http.expectJson GotGif gifDecoder
+    { url = "https://www.googleapis.com/drive/v3/files?q=%271pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak%27%20in%20parents&key=AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
+    , expect = Http.expectJson GotBlogList blogListDecoder
     }
 
 
-gifDecoder : Decoder String
-gifDecoder =
-  field "data" (field "image_url" string)
+blogListDecoder : Decoder String
+blogListDecoder =
+  field "kind" string
