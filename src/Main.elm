@@ -1,20 +1,22 @@
-module Main exposing (BlogPost, Model(..), Msg(..), blogPostListUrl, blogDecoder, blogPostDecoder, getBlogList, init, main, viewBlogpostList, subscriptions, update, view, viewMainContent, viewSpinner)
+module Main exposing (BlogPost, Model(..), Msg(..), blogDecoder, blogPostDecoder, blogPostListUrl, getBlogList, init, main, subscriptions, update, view, viewBlogpostList, viewMainContent, viewSpinner)
+
 import Browser
 import Html exposing (Html, button, div, h1, h2, li, text, ul)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder, list, string)
-import String.Interpolate exposing(interpolate)
 import Loading
     exposing
         ( LoaderType(..)
         , defaultConfig
         , render
         )
+import String.Interpolate exposing (interpolate)
 
 
 
 -- MAIN
+
 
 main : Program () Model Msg
 main =
@@ -128,17 +130,26 @@ viewMainContent model =
 
 -- HTTP
 
+
 apiString : String
-apiString = "https://www.googleapis.com/drive/v3/files?orderBy=createdTime desc&q={0} in parents&key={1}"
+apiString =
+    "https://www.googleapis.com/drive/v3/files?orderBy=createdTime desc&q={0} in parents&key={1}"
+
 
 apiKey : String
-apiKey = "AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
+apiKey =
+    "AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
+
 
 blogRootId : String
-blogRootId = "'1pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak'"
+blogRootId =
+    "'1pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak'"
+
 
 blogPostListUrl : String
-blogPostListUrl = interpolate apiString [blogRootId, apiKey]
+blogPostListUrl =
+    interpolate apiString [ blogRootId, apiKey ]
+
 
 getBlogList : Cmd Msg
 getBlogList =
