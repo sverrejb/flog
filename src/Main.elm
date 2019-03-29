@@ -35,7 +35,7 @@ type alias BlogPost
 
 
 type Model
-  = Failure String
+  = Failure Http.Error
   | Loading
   | Success (List BlogPost)
 
@@ -50,14 +50,14 @@ init _ =
 
 
 type Msg
-  = MorePlease
+  = FetchBlogposts
   | GotBlogList (Result Http.Error (List BlogPost))
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    MorePlease ->
+    FetchBlogposts ->
       (Loading, getBlogList)
 
     GotBlogList result ->
@@ -66,7 +66,7 @@ update msg model =
           (Success url, Cmd.none)
 
         Err err ->
-          (Failure (Debug.toString err), Cmd.none)
+          (Failure err, Cmd.none)
 
 
 
@@ -88,9 +88,9 @@ view : Model -> Html Msg
 view model =
   div []
     [ 
-      div [] [ h1 [] [ text "Header" ] ]
-    , div [] [ h2 [] [ text "Content" ], viewBlogList model ]
-    , div [] [ h2 [] [text "Footer"]]
+      div [] [ h1 [] [ text "Clever Blog Title" ] ]
+    , div [] [ h2 [] [ text "Interesting ramblings" ], viewBlogList model ]
+    , div [] [ h2 [] [text "Footer? Footer."]]
     ]
 
 viewSpinner : Html Msg
@@ -98,7 +98,7 @@ viewSpinner =
   div [ ]
   [ Loading.render
     Spinner
-    { defaultConfig | color = "#333" }
+    { defaultConfig | color = "#000000" }
     Loading.On
   ]    
 
@@ -108,8 +108,8 @@ viewBlogList model =
   case model of
     Failure err ->
       div []
-        [ text err
-        , button [ onClick MorePlease ] [ text "Try Again!" ]
+        [ text "Unable to load blogposts"
+        , button [ onClick FetchBlogposts ] [ text "Try Again!" ]
         ]
 
     Loading ->
