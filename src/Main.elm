@@ -4,11 +4,18 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode as Decode exposing (Decoder, field, string, list)
+import Loading
+  exposing
+      ( LoaderType(..)
+      , defaultConfig
+      , render
+      )
 
 
 
 -- MAIN
 
+backendUrl = "https://www.googleapis.com/drive/v3/files?q=%271pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak%27%20in%20parents&key=AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
 
 main =
   Browser.element
@@ -86,6 +93,15 @@ view model =
     , div [] [ h2 [] [text "Footer"]]
     ]
 
+viewSpinner : Html Msg
+viewSpinner =
+  div [ ]
+  [ Loading.render
+    Spinner
+    { defaultConfig | color = "#333" }
+    Loading.On
+  ]    
+
 
 viewBlogList : Model -> Html Msg
 viewBlogList model =
@@ -97,7 +113,7 @@ viewBlogList model =
         ]
 
     Loading ->
-      text "Loading blog posts"
+      viewSpinner
 
     Success blogPosts ->
       renderList blogPosts
@@ -107,7 +123,7 @@ viewBlogList model =
 getBlogList : Cmd Msg
 getBlogList =
   Http.get
-    { url = "https://www.googleapis.com/drive/v3/files?q=%271pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak%27%20in%20parents&key=AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
+    { url = backendUrl
     , expect = Http.expectJson GotBlogList blogDecoder
     }
 
