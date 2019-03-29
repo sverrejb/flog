@@ -1,11 +1,12 @@
-module Main exposing (BlogPost, Model(..), Msg(..), backendUrl, blogDecoder, blogPostDecoder, getBlogList, init, main, renderList, subscriptions, update, view, viewBlogList, viewSpinner)
+module Main exposing (BlogPost, Model(..), Msg(..), backendUrl, blogDecoder, blogPostDecoder, getBlogList, init, main, viewBlogpostList, subscriptions, update, view, viewMainContent, viewSpinner)
+
+--import Html.Attributes exposing (..)
 
 import Browser
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Html exposing (Html, button, div, h1, h2, li, text, ul)
+import Html.Events exposing (onClick)
 import Http
-import Json.Decode as Decode exposing (Decoder, field, list, string)
+import Json.Decode as Decode exposing (Decoder, list, string)
 import Loading
     exposing
         ( LoaderType(..)
@@ -18,10 +19,12 @@ import Loading
 -- MAIN
 
 
+backendUrl : String
 backendUrl =
     "https://www.googleapis.com/drive/v3/files?q=%271pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak%27%20in%20parents&key=AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
 
 
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
@@ -35,16 +38,16 @@ main =
 -- MODEL
 
 
+type Model
+    = Failure
+    | Loading
+    | Success (List BlogPost)
+
+
 type alias BlogPost =
     { name : String
     , id : String
     }
-
-
-type Model
-    = Failure Http.Error
-    | Loading
-    | Success (List BlogPost)
 
 
 init : () -> ( Model, Cmd Msg )
@@ -73,7 +76,7 @@ update msg model =
                     ( Success url, Cmd.none )
 
                 Err err ->
-                    ( Failure err, Cmd.none )
+                    ( Failure, Cmd.none )
 
 
 
@@ -89,8 +92,8 @@ subscriptions model =
 -- VIEW
 
 
-renderList : List BlogPost -> Html msg
-renderList lst =
+viewBlogpostList : List BlogPost -> Html msg
+viewBlogpostList lst =
     ul []
         (List.map (\l -> li [] [ text l.name ]) lst)
 
@@ -99,7 +102,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ div [] [ h1 [] [ text "Clever Blog Title" ] ]
-        , div [] [ h2 [] [ text "Interesting ramblings" ], viewBlogList model ]
+        , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
         , div [] [ h2 [] [ text "Footer? Footer." ] ]
         ]
 
@@ -114,10 +117,10 @@ viewSpinner =
         ]
 
 
-viewBlogList : Model -> Html Msg
-viewBlogList model =
+viewMainContent : Model -> Html Msg
+viewMainContent model =
     case model of
-        Failure err ->
+        Failure ->
             div []
                 [ text "Unable to load blogposts"
                 , button [ onClick FetchBlogposts ] [ text "Try Again!" ]
@@ -127,7 +130,7 @@ viewBlogList model =
             viewSpinner
 
         Success blogPosts ->
-            renderList blogPosts
+            viewBlogpostList blogPosts
 
 
 
