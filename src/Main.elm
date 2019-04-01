@@ -66,8 +66,8 @@ update msg model =
 
         GotBlogList result ->
             case result of
-                Ok url ->
-                    ( Success url, Cmd.none )
+                Ok blogPostList ->
+                    ( Success blogPostList, Cmd.none )
 
                 Err err ->
                     ( Failure, Cmd.none )
