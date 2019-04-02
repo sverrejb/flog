@@ -120,7 +120,8 @@ view : Model -> Browser.Document Msg
 view model =
     { title = blogTitle
     , body =
-        [ div []
+        [   text (Url.toString model.url),
+            div []
             [ div [] [ h1 [] [ a [ href "/" ] [ text "Blag" ] ] ]
             , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
             , div [] [ h2 [] [ text "Footer? Footer." ] ]
