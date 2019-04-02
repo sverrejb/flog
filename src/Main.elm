@@ -31,7 +31,11 @@ main =
         , onUrlRequest = LinkClicked
         }
 
-blogTitle = "Blog"
+
+blogTitle =
+    "Blog"
+
+
 
 -- MODEL
 
@@ -84,16 +88,17 @@ update msg model =
 
                 Err err ->
                     ( { model | content = Failure }, Cmd.none )
-        
-        UrlChanged url -> ( { model | url = url }, Cmd.none)
+
+        UrlChanged url ->
+            ( { model | url = url }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
-            Browser.Internal url ->
-                ( model, Nav.pushUrl model.key (Url.toString url) )
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
 
-            Browser.External href ->
-                ( model, Nav.load href )
+                Browser.External href ->
+                    ( model, Nav.load href )
 
 
 
@@ -168,14 +173,14 @@ apiKey =
     "AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
 
 
-blogRootId : String
-blogRootId =
+blogRootDirectoryId : String
+blogRootDirectoryId =
     "'1pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak'"
 
 
 blogPostListUrl : String
 blogPostListUrl =
-    interpolate apiString [ blogRootId, apiKey ]
+    interpolate apiString [ blogRootDirectoryId, apiKey ]
 
 
 getBlogList : Cmd Msg
