@@ -2,7 +2,8 @@ module Main exposing (BlogPost, Model, Msg(..), blogDecoder, blogPostDecoder, bl
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, button, div, h1, h2, li, text, ul)
+import Html exposing (Html, a, button, div, h1, h2, li, text, ul)
+import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder, list, string)
@@ -32,6 +33,7 @@ main =
         }
 
 
+blogTitle : String
 blogTitle =
     "Blog"
 
@@ -114,12 +116,6 @@ subscriptions model =
 -- VIEW
 
 
-viewBlogpostList : List BlogPost -> Html msg
-viewBlogpostList lst =
-    ul []
-        (List.map (\l -> li [] [ text l.name ]) lst)
-
-
 view : Model -> Browser.Document Msg
 view model =
     { title = blogTitle
@@ -141,6 +137,17 @@ viewSpinner =
             { defaultConfig | color = "#000000" }
             Loading.On
         ]
+
+
+viewBlogpostList : List BlogPost -> Html msg
+viewBlogpostList lst =
+    ul []
+        (List.map (\l -> viewBlogListItem l.name l.id) lst)
+
+
+viewBlogListItem : String -> String -> Html msg
+viewBlogListItem name id =
+    li [] [ a [ href ("/post/" ++ id) ] [ text name ] ]
 
 
 viewMainContent : Model -> Html Msg
@@ -166,6 +173,11 @@ viewMainContent model =
 apiString : String
 apiString =
     "https://www.googleapis.com/drive/v3/files?orderBy=createdTime desc&q={0} in parents&key={1}"
+
+
+apiSingleFileUrl : String
+apiSingleFileUrl =
+    "https://www.googleapis.com/drive/v3/files/{1}/export?key={0}&mimeType=text/plain"
 
 
 apiKey : String
