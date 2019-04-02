@@ -1,7 +1,9 @@
-module Main exposing (BlogPost, Model(..), Msg(..), blogDecoder, blogPostDecoder, blogPostListUrl, getBlogList, init, main, subscriptions, update, view, viewBlogpostList, viewMainContent, viewSpinner)
+module Main exposing (BlogPost, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListUrl, getBlogList, init, main, subscriptions, update, view, viewBlogpostList, viewMainContent, viewSpinner)
 
 import Browser
-import Html exposing (Html, button, div, h1, h2, li, text, ul)
+import Browser.Navigation as Nav
+import Html exposing (Html, a, button, div, h1, h2, li, text, ul)
+import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder, list, string)
@@ -12,6 +14,7 @@ import Loading
         , render
         )
 import String.Interpolate exposing (interpolate)
+import Url
 
 
 
@@ -20,19 +23,33 @@ import String.Interpolate exposing (interpolate)
 
 main : Program () Model Msg
 main =
-    Browser.element
+    Browser.application
         { init = init
         , update = update
         , subscriptions = subscriptions
         , view = view
+        , onUrlChange = UrlChanged
+        , onUrlRequest = LinkClicked
         }
+
+
+blogTitle : String
+blogTitle =
+    "Blog"
 
 
 
 -- MODEL
 
 
-type Model
+type alias Model =
+    { key : Nav.Key
+    , url : Url.Url
+    , content : BlogContent
+    }
+
+
+type BlogContent
     = Failure
     | Loading
     | Success (List BlogPost)
@@ -44,9 +61,9 @@ type alias BlogPost =
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( Loading, getBlogList )
+init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
+    ( Model key url Loading, getBlogList )
 
 
 
@@ -56,21 +73,34 @@ init _ =
 type Msg
     = FetchBlogposts
     | GotBlogList (Result Http.Error (List BlogPost))
+    | LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         FetchBlogposts ->
-            ( Loading, getBlogList )
+            ( { model | content = Loading }, getBlogList )
 
         GotBlogList result ->
             case result of
                 Ok blogPostList ->
-                    ( Success blogPostList, Cmd.none )
+                    ( { model | content = Success blogPostList }, Cmd.none )
 
                 Err err ->
-                    ( Failure, Cmd.none )
+                    ( { model | content = Failure }, Cmd.none )
+
+        UrlChanged url ->
+            ( { model | url = url }, Cmd.none )
+
+        LinkClicked urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, Nav.load href )
 
 
 
@@ -86,19 +116,17 @@ subscriptions model =
 -- VIEW
 
 
-viewBlogpostList : List BlogPost -> Html msg
-viewBlogpostList lst =
-    ul []
-        (List.map (\l -> li [] [ text l.name ]) lst)
-
-
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    div []
-        [ div [] [ h1 [] [ text "Clever Blog Title" ] ]
-        , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
-        , div [] [ h2 [] [ text "Footer? Footer." ] ]
+    { title = blogTitle
+    , body =
+        [ div []
+            [ div [] [ h1 [] [ text "Clever Blog Title" ] ]
+            , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
+            , div [] [ h2 [] [ text "Footer? Footer." ] ]
+            ]
         ]
+    }
 
 
 viewSpinner : Html Msg
@@ -111,9 +139,20 @@ viewSpinner =
         ]
 
 
+viewBlogpostList : List BlogPost -> Html msg
+viewBlogpostList lst =
+    ul []
+        (List.map (\l -> viewBlogListItem l.name l.id) lst)
+
+
+viewBlogListItem : String -> String -> Html msg
+viewBlogListItem name id =
+    li [] [ a [ href ("/post/" ++ id) ] [ text name ] ]
+
+
 viewMainContent : Model -> Html Msg
 viewMainContent model =
-    case model of
+    case model.content of
         Failure ->
             div []
                 [ text "Unable to load blogposts"
@@ -136,19 +175,24 @@ apiString =
     "https://www.googleapis.com/drive/v3/files?orderBy=createdTime desc&q={0} in parents&key={1}"
 
 
+apiSingleFileUrl : String
+apiSingleFileUrl =
+    "https://www.googleapis.com/drive/v3/files/{1}/export?key={0}&mimeType=text/plain"
+
+
 apiKey : String
 apiKey =
     "AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
 
 
-blogRootId : String
-blogRootId =
+blogRootDirectoryId : String
+blogRootDirectoryId =
     "'1pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak'"
 
 
 blogPostListUrl : String
 blogPostListUrl =
-    interpolate apiString [ blogRootId, apiKey ]
+    interpolate apiString [ blogRootDirectoryId, apiKey ]
 
 
 getBlogList : Cmd Msg
