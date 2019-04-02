@@ -31,7 +31,7 @@ main =
         , onUrlRequest = LinkClicked
         }
 
-
+blogTitle = "Blog"
 
 -- MODEL
 
@@ -57,7 +57,7 @@ type alias BlogPost =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
-    ( Model key url, getBlogList )
+    ( Model key url Loading, getBlogList )
 
 
 
@@ -84,6 +84,16 @@ update msg model =
 
                 Err err ->
                     ( { model | content = Failure }, Cmd.none )
+        
+        UrlChanged url -> ( { model | url = url }, Cmd.none)
+
+        LinkClicked urlRequest ->
+            case urlRequest of
+            Browser.Internal url ->
+                ( model, Nav.pushUrl model.key (Url.toString url) )
+
+            Browser.External href ->
+                ( model, Nav.load href )
 
 
 
@@ -107,7 +117,7 @@ viewBlogpostList lst =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = "lol"
+    { title = blogTitle
     , body =
         [ div []
             [ div [] [ h1 [] [ text "Clever Blog Title" ] ]
