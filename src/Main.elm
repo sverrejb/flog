@@ -1,6 +1,7 @@
-module Main exposing (BlogPost, Model(..), Msg(..), blogDecoder, blogPostDecoder, blogPostListUrl, getBlogList, init, main, subscriptions, update, view, viewBlogpostList, viewMainContent, viewSpinner)
+module Main exposing (BlogPost, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListUrl, getBlogList, init, main, subscriptions, update, view, viewBlogpostList, viewMainContent, viewSpinner)
 
 import Browser
+import Browser.Navigation as Nav
 import Html exposing (Html, button, div, h1, h2, li, text, ul)
 import Html.Events exposing (onClick)
 import Http
@@ -12,6 +13,7 @@ import Loading
         , render
         )
 import String.Interpolate exposing (interpolate)
+import Url
 
 
 
@@ -20,11 +22,13 @@ import String.Interpolate exposing (interpolate)
 
 main : Program () Model Msg
 main =
-    Browser.element
+    Browser.application
         { init = init
         , update = update
         , subscriptions = subscriptions
         , view = view
+        , onUrlChange = UrlChanged
+        , onUrlRequest = LinkClicked
         }
 
 
@@ -32,7 +36,14 @@ main =
 -- MODEL
 
 
-type Model
+type alias Model =
+    { key : Nav.Key
+    , url : Url.Url
+    , content : BlogContent
+    }
+
+
+type BlogContent
     = Failure
     | Loading
     | Success (List BlogPost)
@@ -44,9 +55,9 @@ type alias BlogPost =
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( Loading, getBlogList )
+init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
+    ( Model key url, getBlogList )
 
 
 
@@ -56,21 +67,23 @@ init _ =
 type Msg
     = FetchBlogposts
     | GotBlogList (Result Http.Error (List BlogPost))
+    | LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         FetchBlogposts ->
-            ( Loading, getBlogList )
+            ( { model | content = Loading }, getBlogList )
 
         GotBlogList result ->
             case result of
                 Ok blogPostList ->
-                    ( Success blogPostList, Cmd.none )
+                    ( { model | content = Success blogPostList }, Cmd.none )
 
                 Err err ->
-                    ( Failure, Cmd.none )
+                    ( { model | content = Failure }, Cmd.none )
 
 
 
@@ -92,13 +105,17 @@ viewBlogpostList lst =
         (List.map (\l -> li [] [ text l.name ]) lst)
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    div []
-        [ div [] [ h1 [] [ text "Clever Blog Title" ] ]
-        , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
-        , div [] [ h2 [] [ text "Footer? Footer." ] ]
+    { title = "lol"
+    , body =
+        [ div []
+            [ div [] [ h1 [] [ text "Clever Blog Title" ] ]
+            , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
+            , div [] [ h2 [] [ text "Footer? Footer." ] ]
+            ]
         ]
+    }
 
 
 viewSpinner : Html Msg
@@ -113,7 +130,7 @@ viewSpinner =
 
 viewMainContent : Model -> Html Msg
 viewMainContent model =
-    case model of
+    case model.content of
         Failure ->
             div []
                 [ text "Unable to load blogposts"
