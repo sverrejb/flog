@@ -121,7 +121,7 @@ view model =
     { title = blogTitle
     , body =
         [ div []
-            [ div [] [ h1 [] [ text "Clever Blog Title" ] ]
+            [ div [] [ h1 [] [ a [ href "/" ] [ text "Blag" ] ] ]
             , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
             , div [] [ h2 [] [ text "Footer? Footer." ] ]
             ]
