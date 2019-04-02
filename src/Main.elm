@@ -1,4 +1,4 @@
-module Main exposing (BlogPost, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListUrl, getBlogList, init, main, subscriptions, update, view, viewBlogpostList, viewMainContent, viewSpinner)
+module Main exposing (BlogPost, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListURI, getBlogList, init, main, subscriptions, update, view, viewBlogpostList, viewMainContent, viewSpinner)
 
 import Browser
 import Browser.Navigation as Nav
@@ -170,15 +170,18 @@ viewMainContent model =
 
 -- HTTP
 
+googleDriveFilesURI : String
+googleDriveFilesURI = 
+    "https://www.googleapis.com/drive/v3/files"
 
-apiString : String
-apiString =
-    "https://www.googleapis.com/drive/v3/files?orderBy=createdTime desc&q={0} in parents&key={1}"
+blogDirectoryURI : String
+blogDirectoryURI =
+    googleDriveFilesURI ++ "?orderBy=createdTime desc&q={0} in parents&key={1}"
 
 
-apiSingleFileUrl : String
-apiSingleFileUrl =
-    "https://www.googleapis.com/drive/v3/files/{1}/export?key={0}&mimeType=text/plain"
+blogPostURI : String
+blogPostURI =
+    googleDriveFilesURI ++ "/{0}/export?key={1}&mimeType=text/plain"
 
 
 apiKey : String
@@ -191,15 +194,15 @@ blogRootDirectoryId =
     "'1pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak'"
 
 
-blogPostListUrl : String
-blogPostListUrl =
-    interpolate apiString [ blogRootDirectoryId, apiKey ]
+blogPostListURI : String
+blogPostListURI =
+    interpolate blogDirectoryURI [ blogRootDirectoryId, apiKey ]
 
 
 getBlogList : Cmd Msg
 getBlogList =
     Http.get
-        { url = blogPostListUrl
+        { url = blogPostListURI
         , expect = Http.expectJson GotBlogList blogDecoder
         }
 
