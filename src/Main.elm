@@ -79,7 +79,7 @@ routeParser =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( Model key (Just RootRoute) Loading "", getBlogList )
+    ( Model key (UrlParser.parse routeParser url) Loading "", getBlogList )
 
 
 
