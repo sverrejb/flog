@@ -15,8 +15,9 @@ import Loading
         )
 import String.Interpolate exposing (interpolate)
 import Url
-import Url.Parser as UrlParser exposing (Parser, (</>), (<?>), top, int, map, oneOf, s, string)
+import Url.Parser as UrlParser exposing ((</>), (<?>), Parser, int, map, oneOf, s, string, top)
 import Url.Parser.Query as Query
+
 
 
 -- MAIN
@@ -62,19 +63,18 @@ type alias BlogPost =
     , id : String
     }
 
-type Route
-  = BlogPostRoute String
-  | RootRoute
 
+type Route
+    = BlogPostRoute String
+    | RootRoute
 
 
 routeParser : Parser (Route -> a) a
 routeParser =
-  oneOf
-    [ 
-         map RootRoute top
-         , map BlogPostRoute  (s "post" </> string)
-    ]
+    oneOf
+        [ map RootRoute top
+        , map BlogPostRoute (s "post" </> string)
+        ]
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -119,6 +119,7 @@ update msg model =
                     ( model, Nav.load href )
 
 
+
 -- VIEW
 
 
@@ -126,8 +127,7 @@ view : Model -> Browser.Document Msg
 view model =
     { title = blogTitle
     , body =
-        [  
-            div []
+        [ div []
             [ div [] [ h1 [] [ a [ href "/" ] [ text "Blag" ] ] ]
             , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
             , div [] [ h2 [] [ text "Footer? Footer." ] ]
@@ -144,6 +144,7 @@ viewSpinner =
             { defaultConfig | color = "#000000" }
             Loading.On
         ]
+
 
 viewBlogIndex : Model -> Html Msg
 viewBlogIndex model =
@@ -171,24 +172,28 @@ viewBlogListItem : String -> String -> Html msg
 viewBlogListItem name id =
     li [] [ a [ href ("/post/" ++ id) ] [ text name ] ]
 
+
 viewBlogPost : String -> Html msg
-viewBlogPost id = text id
+viewBlogPost id =
+    text id
 
 
 viewMainContent : Model -> Html Msg
 viewMainContent model =
-    div [] [
-        text (Debug.toString model.url)
-        , viewBlogIndex model
-    ]
+    case model.url of
+        Just RootRoute -> viewBlogIndex model
+        Just (BlogPostRoute _) -> text "here we show content"
+        Nothing -> text "404"
 
 
 
 -- HTTP
 
+
 googleDriveFilesURI : String
-googleDriveFilesURI = 
+googleDriveFilesURI =
     "https://www.googleapis.com/drive/v3/files"
+
 
 blogDirectoryURI : String
 blogDirectoryURI =
