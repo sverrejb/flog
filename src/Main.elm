@@ -15,6 +15,7 @@ import Loading
         )
 import String.Interpolate exposing (interpolate)
 import Url
+import Url.Parser as UrlParser exposing ((</>))
 
 
 
@@ -46,6 +47,7 @@ type alias Model =
     { key : Nav.Key
     , url : Url.Url
     , content : BlogContent
+    , currentBlogPost : String
     }
 
 
@@ -61,9 +63,17 @@ type alias BlogPost =
     }
 
 
+type alias DocsRoute =
+  (String, Maybe String)
+
+docsParser : UrlParser.Parser (DocsRoute -> a) a
+docsParser =
+    UrlParser.map Tuple.pair (UrlParser.string </> UrlParser.fragment identity)
+
+
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( Model key url Loading, getBlogList )
+    ( Model key url Loading "", getBlogList )
 
 
 
