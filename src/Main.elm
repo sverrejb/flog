@@ -15,8 +15,8 @@ import Loading
         )
 import String.Interpolate exposing (interpolate)
 import Url
-import Url.Parser as UrlParser exposing ((</>))
-
+import Url.Parser as UrlParser exposing (Parser, (</>), (<?>), int, map, oneOf, s, string)
+import Url.Parser.Query as Query
 
 
 -- MAIN
@@ -45,7 +45,7 @@ blogTitle =
 
 type alias Model =
     { key : Nav.Key
-    , url : Maybe DocsRoute
+    , url : Maybe Route
     , content : BlogContent
     , currentBlogPost : String
     }
@@ -62,18 +62,23 @@ type alias BlogPost =
     , id : String
     }
 
+type Route
+  = BlogPostRoute String
+  | BlogQuery (Maybe String)
 
-type alias DocsRoute =
-  (String, Maybe String)
 
-postParser : UrlParser.Parser (DocsRoute -> a) a
-postParser =
-    UrlParser.map Tuple.pair (UrlParser.string </> UrlParser.fragment identity)
+
+routeParser : Parser (Route -> a) a
+routeParser =
+  oneOf
+    [ map BlogPostRoute  (s "blog" </> string)
+    , map BlogQuery (s "blog" <?> Query.string "q")
+    ]
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( Model key (UrlParser.parse postParser url) Loading "", getBlogList )
+    ( Model key (UrlParser.parse routeParser url) Loading "", getBlogList )
 
 
 
@@ -102,7 +107,7 @@ update msg model =
                     ( { model | content = Failure }, Cmd.none )
 
         UrlChanged url ->
-            ( { model | url = UrlParser.parse postParser url }, Cmd.none )
+            ( { model | url = UrlParser.parse routeParser url }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -111,10 +116,6 @@ update msg model =
 
                 Browser.External href ->
                     ( model, Nav.load href )
-
-
-
--- SUBSCRIPTIONS
 
 
 -- VIEW
