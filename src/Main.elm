@@ -1,4 +1,4 @@
-module Main exposing (BlogPost, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListURI, getBlogList, init, main, subscriptions, update, view, viewBlogpostList, viewMainContent, viewSpinner)
+module Main exposing (BlogPost, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListURI, getBlogList, init, main, update, view, viewBlogpostList, viewMainContent, viewSpinner)
 
 import Browser
 import Browser.Navigation as Nav
@@ -27,7 +27,7 @@ main =
     Browser.application
         { init = init
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = \_ -> Sub.none
         , view = view
         , onUrlChange = UrlChanged
         , onUrlRequest = LinkClicked
@@ -45,7 +45,7 @@ blogTitle =
 
 type alias Model =
     { key : Nav.Key
-    , url : Url.Url
+    , url : Maybe DocsRoute
     , content : BlogContent
     , currentBlogPost : String
     }
@@ -66,14 +66,14 @@ type alias BlogPost =
 type alias DocsRoute =
   (String, Maybe String)
 
-docsParser : UrlParser.Parser (DocsRoute -> a) a
-docsParser =
+postParser : UrlParser.Parser (DocsRoute -> a) a
+postParser =
     UrlParser.map Tuple.pair (UrlParser.string </> UrlParser.fragment identity)
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( Model key url Loading "", getBlogList )
+    ( Model key (UrlParser.parse postParser url) Loading "", getBlogList )
 
 
 
@@ -102,7 +102,7 @@ update msg model =
                     ( { model | content = Failure }, Cmd.none )
 
         UrlChanged url ->
-            ( { model | url = url }, Cmd.none )
+            ( { model | url = UrlParser.parse postParser url }, Cmd.none )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -117,12 +117,6 @@ update msg model =
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
-
-
-
 -- VIEW
 
 
@@ -130,7 +124,7 @@ view : Model -> Browser.Document Msg
 view model =
     { title = blogTitle
     , body =
-        [   text (Url.toString model.url),
+        [  
             div []
             [ div [] [ h1 [] [ a [ href "/" ] [ text "Blag" ] ] ]
             , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
@@ -159,6 +153,9 @@ viewBlogpostList lst =
 viewBlogListItem : String -> String -> Html msg
 viewBlogListItem name id =
     li [] [ a [ href ("/post/" ++ id) ] [ text name ] ]
+
+viewBlogPost : String -> Html msg
+viewBlogPost id = text id
 
 
 viewMainContent : Model -> Html Msg
