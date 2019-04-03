@@ -62,7 +62,7 @@ type alias BlogPost =
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url key =
+init _ url key =
     ( Model key url Loading, getBlogList )
 
 
