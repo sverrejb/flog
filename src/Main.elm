@@ -15,7 +15,7 @@ import Loading
         )
 import String.Interpolate exposing (interpolate)
 import Url
-import Url.Parser as UrlParser exposing (Parser, (</>), (<?>), int, map, oneOf, s, string)
+import Url.Parser as UrlParser exposing (Parser, (</>), (<?>), top, int, map, oneOf, s, string)
 import Url.Parser.Query as Query
 
 
@@ -64,21 +64,22 @@ type alias BlogPost =
 
 type Route
   = BlogPostRoute String
-  | BlogQuery (Maybe String)
+  | RootRoute
 
 
 
 routeParser : Parser (Route -> a) a
 routeParser =
   oneOf
-    [ map BlogPostRoute  (s "post" </> string)
-    , map BlogQuery (s "post" <?> Query.string "q")
+    [ 
+         map RootRoute top
+         , map BlogPostRoute  (s "post" </> string)
     ]
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( Model key (UrlParser.parse routeParser url) Loading "", getBlogList )
+    ( Model key (Just RootRoute) Loading "", getBlogList )
 
 
 
