@@ -46,12 +46,12 @@ blogTitle =
 type alias Model =
     { key : Nav.Key
     , url : Maybe Route
-    , content : BlogContent
+    , blogIndex : BlogIndex
     , currentBlogPost : String
     }
 
 
-type BlogContent
+type BlogIndex
     = Failure
     | Loading
     | Success (List BlogPost)
@@ -71,8 +71,8 @@ type Route
 routeParser : Parser (Route -> a) a
 routeParser =
   oneOf
-    [ map BlogPostRoute  (s "blog" </> string)
-    , map BlogQuery (s "blog" <?> Query.string "q")
+    [ map BlogPostRoute  (s "post" </> string)
+    , map BlogQuery (s "post" <?> Query.string "q")
     ]
 
 
@@ -96,15 +96,15 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         FetchBlogposts ->
-            ( { model | content = Loading }, getBlogList )
+            ( { model | blogIndex = Loading }, getBlogList )
 
         GotBlogList result ->
             case result of
                 Ok blogPostList ->
-                    ( { model | content = Success blogPostList }, Cmd.none )
+                    ( { model | blogIndex = Success blogPostList }, Cmd.none )
 
                 Err err ->
-                    ( { model | content = Failure }, Cmd.none )
+                    ( { model | blogIndex = Failure }, Cmd.none )
 
         UrlChanged url ->
             ( { model | url = UrlParser.parse routeParser url }, Cmd.none )
@@ -144,6 +144,21 @@ viewSpinner =
             Loading.On
         ]
 
+viewBlogIndex : Model -> Html Msg
+viewBlogIndex model =
+    case model.blogIndex of
+        Failure ->
+            div []
+                [ text "Unable to load blogposts"
+                , button [ onClick FetchBlogposts ] [ text "Try Again!" ]
+                ]
+
+        Loading ->
+            viewSpinner
+
+        Success blogPosts ->
+            viewBlogpostList blogPosts
+
 
 viewBlogpostList : List BlogPost -> Html msg
 viewBlogpostList lst =
@@ -161,18 +176,10 @@ viewBlogPost id = text id
 
 viewMainContent : Model -> Html Msg
 viewMainContent model =
-    case model.content of
-        Failure ->
-            div []
-                [ text "Unable to load blogposts"
-                , button [ onClick FetchBlogposts ] [ text "Try Again!" ]
-                ]
-
-        Loading ->
-            viewSpinner
-
-        Success blogPosts ->
-            viewBlogpostList blogPosts
+    div [] [
+        text (Debug.toString model.url)
+        , viewBlogIndex model
+    ]
 
 
 
