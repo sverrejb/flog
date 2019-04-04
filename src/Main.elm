@@ -2,7 +2,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, button, div, h1, h2, li, text, ul)
+import Html exposing (Html, a, button, div, pre, h1, h2, li, text, ul)
 import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
 import Http
@@ -186,7 +186,7 @@ viewBlogListItem name id =
 
 viewBlogPost : Model -> Html msg
 viewBlogPost model =
-    text model.currentBlogPost
+    pre [] [ text model.currentBlogPost ]
 
 
 viewMainContent : Model -> Html Msg
