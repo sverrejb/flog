@@ -61,6 +61,7 @@ type BlogIndex
 type alias BlogIndexItem =
     { name : String
     , id : String
+    , date: String
     }
 
 
@@ -178,12 +179,12 @@ viewBlogIndex model =
 viewBlogpostList : List BlogIndexItem -> Html Msg
 viewBlogpostList lst =
     ul []
-        (List.map (\l -> viewBlogListItem l.name l.id) lst)
+        (List.map (\l -> viewBlogListItem l.name l.id l.date) lst)
 
 
-viewBlogListItem : String -> String -> Html Msg
-viewBlogListItem name id =
-    li [] [ a [ href ("/post/" ++ id), onClick (FetchBlogpostContent id) ] [ text name ] ]
+viewBlogListItem : String -> String -> String -> Html Msg
+viewBlogListItem name id date =
+    li [] [ a [ href ("/post/" ++ id), onClick (FetchBlogpostContent id) ] [ text (name ++ " - " ++ date) ] ]
 
 
 viewBlogPost : Model -> Html msg
@@ -241,7 +242,7 @@ googleDriveFilesURI =
 
 blogDirectoryURI : String
 blogDirectoryURI =
-    googleDriveFilesURI ++ "?orderBy=createdTime desc&q={0} in parents&key={1}"
+    googleDriveFilesURI ++ "?orderBy=createdTime desc&q={0} in parents&key={1}&fields=files(name,id,createdTime)"
 
 
 blogPostURI : String
@@ -261,7 +262,8 @@ blogDecoder =
 
 blogPostDecoder : Decoder BlogIndexItem
 blogPostDecoder =
-    Decode.map2
+    Decode.map3
         BlogIndexItem
         (Decode.at [ "name" ] Decode.string)
         (Decode.at [ "id" ] Decode.string)
+        (Decode.at [ "createdTime" ] Decode.string)
