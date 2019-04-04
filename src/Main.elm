@@ -1,4 +1,4 @@
-module Main exposing (BlogPost, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListURI, getBlogList, init, main, update, view, viewBlogpostList, viewMainContent, viewSpinner)
+module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListURI, getBlogList, init, main, update, view, viewBlogpostList, viewMainContent, viewSpinner)
 
 import Browser
 import Browser.Navigation as Nav
@@ -55,10 +55,10 @@ type alias Model =
 type BlogIndex
     = Failure
     | Loading
-    | Success (List BlogPost)
+    | Success (List BlogIndexItem)
 
 
-type alias BlogPost =
+type alias BlogIndexItem =
     { name : String
     , id : String
     }
@@ -87,8 +87,10 @@ init _ url key =
 
 
 type Msg
-    = FetchBlogposts
-    | GotBlogList (Result Http.Error (List BlogPost))
+    = FetchBlogpostsIndex
+    | FetchBlogpostContent String
+    | GotBlogList (Result Http.Error (List BlogIndexItem))
+    | GotBlogPost (Result Http.Error String)
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
 
@@ -96,8 +98,10 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        FetchBlogposts ->
+        FetchBlogpostsIndex ->
             ( { model | blogIndex = Loading }, getBlogList )
+        FetchBlogpostContent id->
+            ( model, getBlogPost id)
 
         GotBlogList result ->
             case result of
@@ -106,6 +110,13 @@ update msg model =
 
                 Err err ->
                     ( { model | blogIndex = Failure }, Cmd.none )
+
+        GotBlogPost result ->
+            case result of
+                Ok blogPostContent ->
+                    ( { model | currentBlogPost = blogPostContent }, Cmd.none)
+                Err _ ->
+                    ( { model | currentBlogPost = "error fetching blogpost"}, Cmd.none)
 
         UrlChanged url ->
             ( { model | url = UrlParser.parse routeParser url }, Cmd.none )
@@ -152,7 +163,7 @@ viewBlogIndex model =
         Failure ->
             div []
                 [ text "Unable to load blogposts"
-                , button [ onClick FetchBlogposts ] [ text "Try Again!" ]
+                , button [ onClick FetchBlogpostsIndex ] [ text "Try Again!" ]
                 ]
 
         Loading ->
@@ -162,32 +173,56 @@ viewBlogIndex model =
             viewBlogpostList blogPosts
 
 
-viewBlogpostList : List BlogPost -> Html msg
+viewBlogpostList : List BlogIndexItem -> Html Msg
 viewBlogpostList lst =
     ul []
         (List.map (\l -> viewBlogListItem l.name l.id) lst)
 
 
-viewBlogListItem : String -> String -> Html msg
+viewBlogListItem : String -> String -> Html Msg
 viewBlogListItem name id =
-    li [] [ a [ href ("/post/" ++ id) ] [ text name ] ]
+    li [] [ a [ href ("/post/" ++ id), onClick (FetchBlogpostContent id) ] [ text name ] ]
 
 
-viewBlogPost : String -> Html msg
-viewBlogPost id =
-    text id
+viewBlogPost : Model -> Html msg
+viewBlogPost model =
+    text model.currentBlogPost
 
 
 viewMainContent : Model -> Html Msg
 viewMainContent model =
     case model.url of
         Just RootRoute -> viewBlogIndex model
-        Just (BlogPostRoute _) -> text "here we show content"
+        Just (BlogPostRoute _) -> viewBlogPost model
         Nothing -> text "404"
 
 
 
 -- HTTP
+
+
+getBlogList : Cmd Msg
+getBlogList =
+    Http.get
+        { url = blogPostListURI
+        , expect = Http.expectJson GotBlogList blogDecoder
+        }
+
+
+getBlogPost : String -> Cmd Msg
+getBlogPost id =
+    Http.get{ url = interpolate blogPostURI [id, apiKey]
+    , expect = Http.expectString GotBlogPost}
+
+
+apiKey : String
+apiKey =
+    "AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
+
+
+blogRootDirectoryId : String
+blogRootDirectoryId =
+    "'1pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak'"
 
 
 googleDriveFilesURI : String
@@ -205,37 +240,19 @@ blogPostURI =
     googleDriveFilesURI ++ "/{0}/export?key={1}&mimeType=text/plain"
 
 
-apiKey : String
-apiKey =
-    "AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
-
-
-blogRootDirectoryId : String
-blogRootDirectoryId =
-    "'1pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak'"
-
-
 blogPostListURI : String
 blogPostListURI =
     interpolate blogDirectoryURI [ blogRootDirectoryId, apiKey ]
 
 
-getBlogList : Cmd Msg
-getBlogList =
-    Http.get
-        { url = blogPostListURI
-        , expect = Http.expectJson GotBlogList blogDecoder
-        }
-
-
-blogDecoder : Decoder (List BlogPost)
+blogDecoder : Decoder (List BlogIndexItem)
 blogDecoder =
     Decode.at [ "files" ] (Decode.list blogPostDecoder)
 
 
-blogPostDecoder : Decoder BlogPost
+blogPostDecoder : Decoder BlogIndexItem
 blogPostDecoder =
     Decode.map2
-        BlogPost
+        BlogIndexItem
         (Decode.at [ "name" ] Decode.string)
         (Decode.at [ "id" ] Decode.string)
