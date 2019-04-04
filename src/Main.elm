@@ -2,7 +2,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, button, div, pre, h1, h2, li, text, ul)
+import Html exposing (Html, a, button, div, h1, h2, li, pre, text, ul)
 import Html.Attributes exposing (href)
 import Html.Events exposing (onClick)
 import Http
@@ -100,8 +100,9 @@ update msg model =
     case msg of
         FetchBlogpostsIndex ->
             ( { model | blogIndex = Loading }, getBlogList )
-        FetchBlogpostContent id->
-            ( model, getBlogPost id)
+
+        FetchBlogpostContent id ->
+            ( model, getBlogPost id )
 
         GotBlogList result ->
             case result of
@@ -114,9 +115,10 @@ update msg model =
         GotBlogPost result ->
             case result of
                 Ok blogPostContent ->
-                    ( { model | currentBlogPost = blogPostContent }, Cmd.none)
+                    ( { model | currentBlogPost = blogPostContent }, Cmd.none )
+
                 Err _ ->
-                    ( { model | currentBlogPost = "error fetching blogpost"}, Cmd.none)
+                    ( { model | currentBlogPost = "error fetching blogpost" }, Cmd.none )
 
         UrlChanged url ->
             ( { model | url = UrlParser.parse routeParser url }, Cmd.none )
@@ -192,9 +194,14 @@ viewBlogPost model =
 viewMainContent : Model -> Html Msg
 viewMainContent model =
     case model.url of
-        Just RootRoute -> viewBlogIndex model
-        Just (BlogPostRoute _) -> viewBlogPost model
-        Nothing -> text "404"
+        Just RootRoute ->
+            viewBlogIndex model
+
+        Just (BlogPostRoute _) ->
+            viewBlogPost model
+
+        Nothing ->
+            text "404"
 
 
 
@@ -211,8 +218,10 @@ getBlogList =
 
 getBlogPost : String -> Cmd Msg
 getBlogPost id =
-    Http.get{ url = interpolate blogPostURI [id, apiKey]
-    , expect = Http.expectString GotBlogPost}
+    Http.get
+        { url = interpolate blogPostURI [ id, apiKey ]
+        , expect = Http.expectString GotBlogPost
+        }
 
 
 apiKey : String
