@@ -48,7 +48,7 @@ type alias Model =
     { key : Nav.Key
     , url : Maybe Route
     , blogIndex : BlogIndex
-    , currentBlogPost : String
+    , currentBlogPost : BlogItemContent
     }
 
 
@@ -56,6 +56,11 @@ type BlogIndex
     = Failure
     | Loading
     | Success (List BlogItem)
+
+type BlogItemContent
+    = ContentFailure
+    | ContentLoading
+    | ContentSuccess String
 
 
 type alias BlogItem =
@@ -81,7 +86,7 @@ routeParser =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( Model key (UrlParser.parse routeParser url) Loading "", Cmd.batch [getBlogList, getBlogPost url] )
+    ( Model key (UrlParser.parse routeParser url) Loading ContentLoading, Cmd.batch [getBlogList, getBlogPost url] )
 
 
 
@@ -104,7 +109,7 @@ update msg model =
             ( { model | blogIndex = Loading }, getBlogList )
 
         FetchBlogpostContent id ->
-            ( model, getBlogPost id )
+            ( { model | currentBlogPost = ContentLoading }, getBlogPost id )
 
         GotBlogList result ->
             case result of
@@ -117,10 +122,10 @@ update msg model =
         GotBlogPost result ->
             case result of
                 Ok blogPostContent ->
-                    ( { model | currentBlogPost = blogPostContent }, Cmd.none )
+                    ( { model | currentBlogPost = ContentSuccess blogPostContent }, Cmd.none )
 
                 Err _ ->
-                    ( { model | currentBlogPost = "error fetching blogpost" }, Cmd.none )
+                    ( { model | currentBlogPost = ContentFailure }, Cmd.none )
 
         UrlChanged url ->
             ( { model | url = UrlParser.parse routeParser url }, getBlogPost url )
@@ -188,9 +193,15 @@ viewBlogListItem name id date =
     li [] [ a [ href ("/post/" ++ id) ] [ text (name ++ " - " ++ date) ] ]
 
 
-viewBlogPost : Model -> Html msg
+viewBlogPost : Model -> Html Msg
 viewBlogPost model =
-    pre [] [ text model.currentBlogPost ]
+    case model.currentBlogPost of
+        ContentFailure ->
+            div [] [ text "Error loading blogpost"]
+        ContentLoading ->
+            viewSpinner
+        ContentSuccess content ->
+            pre [] [ text content ]
 
 
 viewMainContent : Model -> Html Msg
