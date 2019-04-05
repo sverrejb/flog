@@ -1,4 +1,4 @@
-module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListURI, getBlogList, init, main, update, view, viewBlogpostList, viewMainContent, viewSpinner)
+module Main exposing (BlogItem, Model, Msg(..), blogDecoder, blogPostDecoder, blogPostListURI, getBlogList, init, main, update, view, viewBlogpostList, viewMainContent, viewSpinner)
 
 import Browser
 import Browser.Navigation as Nav
@@ -55,13 +55,14 @@ type alias Model =
 type BlogIndex
     = Failure
     | Loading
-    | Success (List BlogIndexItem)
+    | Success (List BlogItem)
 
 
-type alias BlogIndexItem =
+type alias BlogItem =
     { name : String
     , id : String
-    , date: String
+    , date : String
+    , content : String
     }
 
 
@@ -89,8 +90,8 @@ init _ url key =
 
 type Msg
     = FetchBlogpostsIndex
-    | FetchBlogpostContent String
-    | GotBlogList (Result Http.Error (List BlogIndexItem))
+    | FetchBlogpostContent Url.Url
+    | GotBlogList (Result Http.Error (List BlogItem))
     | GotBlogPost (Result Http.Error String)
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
@@ -122,7 +123,7 @@ update msg model =
                     ( { model | currentBlogPost = "error fetching blogpost" }, Cmd.none )
 
         UrlChanged url ->
-            ( { model | url = UrlParser.parse routeParser url }, Cmd.none )
+            ( { model | url = UrlParser.parse routeParser url }, getBlogPost url )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -176,7 +177,7 @@ viewBlogIndex model =
             viewBlogpostList blogPosts
 
 
-viewBlogpostList : List BlogIndexItem -> Html Msg
+viewBlogpostList : List BlogItem -> Html Msg
 viewBlogpostList lst =
     ul []
         (List.map (\l -> viewBlogListItem l.name l.id l.date) lst)
@@ -184,7 +185,7 @@ viewBlogpostList lst =
 
 viewBlogListItem : String -> String -> String -> Html Msg
 viewBlogListItem name id date =
-    li [] [ a [ href ("/post/" ++ id), onClick (FetchBlogpostContent id) ] [ text (name ++ " - " ++ date) ] ]
+    li [] [ a [ href ("/post/" ++ id) ] [ text (name ++ " - " ++ date) ] ]
 
 
 viewBlogPost : Model -> Html msg
@@ -217,13 +218,17 @@ getBlogList =
         }
 
 
-getBlogPost : String -> Cmd Msg
-getBlogPost id =
+getBlogPost : Url.Url -> Cmd Msg
+getBlogPost url =
+    let id = getIDfromUrl url in
     Http.get
         { url = interpolate blogPostURI [ id, apiKey ]
         , expect = Http.expectString GotBlogPost
         }
 
+getIDfromUrl : Url.Url -> String
+getIDfromUrl url =
+    "1cdY6uiXxem58kcLmzOoKN8xjJ_KqF4xKvZVHIzF_Us4"
 
 apiKey : String
 apiKey =
@@ -255,15 +260,16 @@ blogPostListURI =
     interpolate blogDirectoryURI [ blogRootDirectoryId, apiKey ]
 
 
-blogDecoder : Decoder (List BlogIndexItem)
+blogDecoder : Decoder (List BlogItem)
 blogDecoder =
     Decode.at [ "files" ] (Decode.list blogPostDecoder)
 
 
-blogPostDecoder : Decoder BlogIndexItem
+blogPostDecoder : Decoder BlogItem
 blogPostDecoder =
-    Decode.map3
-        BlogIndexItem
+    Decode.map4
+        BlogItem
         (Decode.at [ "name" ] Decode.string)
         (Decode.at [ "id" ] Decode.string)
         (Decode.at [ "createdTime" ] Decode.string)
+        (Decode.at [ "id" ] Decode.string)
