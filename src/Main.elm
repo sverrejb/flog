@@ -81,7 +81,7 @@ routeParser =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( Model key (UrlParser.parse routeParser url) Loading "", getBlogList )
+    ( Model key (UrlParser.parse routeParser url) Loading "", Cmd.batch [getBlogList, getBlogPost url] )
 
 
 
@@ -221,17 +221,17 @@ getBlogList =
 getBlogPost : Url.Url -> Cmd Msg
 getBlogPost url =
     let id = getIDfromUrl url in
-    Http.get
-        { url = interpolate blogPostURI [ id, apiKey ]
-        , expect = Http.expectString GotBlogPost
-        }
-
-getIDfromUrl : Url.Url -> String
-getIDfromUrl url =
-    let id = List.head (List.reverse (String.split "/" (Url.toString url))) in
     case id of
-        Just blogID -> blogID
-        Nothing -> ""
+        Just blogId ->
+            Http.get
+                { url = interpolate blogPostURI [ blogId, apiKey ]
+                , expect = Http.expectString GotBlogPost
+                }
+        Nothing -> Cmd.none
+
+getIDfromUrl : Url.Url -> Maybe String
+getIDfromUrl url =
+    List.head (List.reverse (String.split "/" (Url.toString url)))
 
 apiKey : String
 apiKey =
