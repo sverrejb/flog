@@ -228,7 +228,10 @@ getBlogPost url =
 
 getIDfromUrl : Url.Url -> String
 getIDfromUrl url =
-    "1cdY6uiXxem58kcLmzOoKN8xjJ_KqF4xKvZVHIzF_Us4"
+    let id = List.head (List.reverse (String.split "/" (Url.toString url))) in
+    case id of
+        Just blogID -> blogID
+        Nothing -> ""
 
 apiKey : String
 apiKey =
