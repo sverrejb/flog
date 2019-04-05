@@ -223,10 +223,12 @@ getBlogPost url =
     let id = getIDfromUrl url in
     case id of
         Just blogId ->
-            Http.get
-                { url = interpolate blogPostURI [ blogId, apiKey ]
-                , expect = Http.expectString GotBlogPost
-                }
+            case blogId of
+            "" -> Cmd.none
+            _ -> Http.get
+                    { url = interpolate blogPostURI [ blogId, apiKey ]
+                    , expect = Http.expectString GotBlogPost
+                    }
         Nothing -> Cmd.none
 
 getIDfromUrl : Url.Url -> Maybe String
