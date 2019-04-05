@@ -57,6 +57,7 @@ type BlogIndex
     | Loading
     | Success (List BlogItem)
 
+
 type BlogItemContent
     = ContentFailure
     | ContentLoading
@@ -86,7 +87,7 @@ routeParser =
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( Model key (UrlParser.parse routeParser url) Loading ContentLoading, Cmd.batch [getBlogList, getBlogPost url] )
+    ( Model key (UrlParser.parse routeParser url) Loading ContentLoading, Cmd.batch [ getBlogList, getBlogPost url ] )
 
 
 
@@ -128,7 +129,7 @@ update msg model =
                     ( { model | currentBlogPost = ContentFailure }, Cmd.none )
 
         UrlChanged url ->
-            ( { model | url = UrlParser.parse routeParser url }, getBlogPost url )
+            ( { model | url = UrlParser.parse routeParser url, currentBlogPost = ContentLoading }, getBlogPost url )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -197,9 +198,11 @@ viewBlogPost : Model -> Html Msg
 viewBlogPost model =
     case model.currentBlogPost of
         ContentFailure ->
-            div [] [ text "Error loading blogpost"]
+            div [] [ text "Error loading blogpost" ]
+
         ContentLoading ->
             viewSpinner
+
         ContentSuccess content ->
             pre [] [ text content ]
 
@@ -231,20 +234,30 @@ getBlogList =
 
 getBlogPost : Url.Url -> Cmd Msg
 getBlogPost url =
-    let id = getIDfromUrl url in
+    let
+        id =
+            getIDfromUrl url
+    in
     case id of
         Just blogId ->
             case blogId of
-            "" -> Cmd.none
-            _ -> Http.get
-                    { url = interpolate blogPostURI [ blogId, apiKey ]
-                    , expect = Http.expectString GotBlogPost
-                    }
-        Nothing -> Cmd.none
+                "" ->
+                    Cmd.none
+
+                _ ->
+                    Http.get
+                        { url = interpolate blogPostURI [ blogId, apiKey ]
+                        , expect = Http.expectString GotBlogPost
+                        }
+
+        Nothing ->
+            Cmd.none
+
 
 getIDfromUrl : Url.Url -> Maybe String
 getIDfromUrl url =
     List.head (List.reverse (String.split "/" (Url.toString url)))
+
 
 apiKey : String
 apiKey =
