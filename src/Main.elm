@@ -68,7 +68,6 @@ type alias BlogItem =
     { name : String
     , id : String
     , date : String
-    , content : String
     }
 
 
@@ -296,9 +295,8 @@ blogDecoder =
 
 blogPostDecoder : Decoder BlogItem
 blogPostDecoder =
-    Decode.map4
+    Decode.map3
         BlogItem
         (Decode.at [ "name" ] Decode.string)
         (Decode.at [ "id" ] Decode.string)
         (Decode.at [ "createdTime" ] Decode.string)
-        (Decode.at [ "id" ] Decode.string)
