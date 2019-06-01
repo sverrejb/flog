@@ -216,7 +216,7 @@ viewMainContent model =
             viewBlogPost model
 
         Nothing ->
-            text "404"
+            text "404 not found"
 
 
 
