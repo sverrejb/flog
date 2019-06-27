@@ -128,7 +128,8 @@ update msg model =
                     ( { model | currentBlogPost = ContentFailure }, Cmd.none )
 
         UrlChanged url ->
-            ( { model | url = UrlParser.parse routeParser url, currentBlogPost = ContentLoading }, getBlogPost model.url )
+            let newUrl = UrlParser.parse routeParser url in
+            ( { model | url = newUrl, currentBlogPost = ContentLoading }, getBlogPost newUrl)
 
         LinkClicked urlRequest ->
             case urlRequest of
