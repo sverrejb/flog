@@ -1,0 +1,43 @@
+body {
+	margin: 40px auto;
+	font-family: 'Open Sans', sans-serif;
+	max-width: 650px;
+	line-height: 1.6;
+	font-size: 18px;
+	color: #444;
+	padding: 0 10px;
+	background-color: #eee
+}
+
+pre {
+	font-family: 'Open Sans', sans-serif;
+}
+
+ul {
+	padding-left: 0;
+}
+
+#header {
+	font-family: 'Economica', sans-serif;
+	color: #69a0a5
+}
+
+h2,
+h3 {
+	font-family: 'Economica', sans-serif;
+	line-height: 1.2;
+	color: #444
+}
+
+a,
+a:visited,
+a:hover,
+a:active {
+	color: #444;
+	text-decoration: none;
+}
+
+li {
+	list-style-type: none
+}
+
