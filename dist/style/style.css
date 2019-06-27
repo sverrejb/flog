@@ -4,13 +4,14 @@ body {
 	max-width: 650px;
 	line-height: 1.6;
 	font-size: 18px;
-	color: #444;
+	color: #454545;
 	padding: 0 10px;
 	background-color: #eee
 }
 
 pre {
-	font-family: 'Open Sans', sans-serif;
+   font-family: 'Open Sans', sans-serif;
+   overflow-wrap: normal
 }
 
 ul {
@@ -28,18 +29,18 @@ h2,
 h3 {
 	font-family: 'Economica', sans-serif;
 	line-height: 1.2;
-	color: #444
+	color: #454545
 }
 
 a,
 a:visited,
 a:hover,
 a:active {
-	color: #444;
+	color: #454545;
 	text-decoration: none;
 }
 
 li {
-	list-style-type: none
+	list-style-type: none;
 }
 
