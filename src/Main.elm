@@ -3,7 +3,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 import Browser
 import Browser.Navigation as Nav
 import Html exposing (Html, a, button, div, h1, h2, li, pre, text, ul)
-import Html.Attributes exposing (href)
+import Html.Attributes exposing (href, id)
 import Html.Events exposing (onClick)
 import Http
 import Json.Decode as Decode exposing (Decoder, list, string)
@@ -152,7 +152,7 @@ view model =
     { title = blogTitle
     , body =
         [ div []
-            [ div [] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ] ]
+            [ div [] [ h1 [] [ a [ href "/", id "header" ] [ text "Blog" ] ] ]
             , div [] [ viewMainContent model ]
             , div [] [ h2 [] [ text "Footer? Footer." ] ]
             ]
