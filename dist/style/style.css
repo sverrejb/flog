@@ -17,9 +17,11 @@ ul {
 	padding-left: 0;
 }
 
-#header {
+#header a{
 	font-family: 'Economica', sans-serif;
-	color: #69a0a5
+   color: #69a0a5;
+   font-weight: 700;
+   font-size: 4rem
 }
 
 h2,

@@ -37,7 +37,7 @@ main =
 
 blogTitle : String
 blogTitle =
-    "Blog"
+    "Sverres blog"
 
 
 
@@ -152,7 +152,7 @@ view model =
     { title = blogTitle
     , body =
         [ div []
-            [ div [] [ h1 [] [ a [ href "/", id "header" ] [ text "Blog" ] ] ]
+            [ div [] [ h1 [ id "header" ] [ a [ href "/" ] [ text "Blog" ] ] ]
             , div [] [ viewMainContent model ]
             , div [] [ h2 [] [ text "Footer? Footer." ] ]
             ]
@@ -294,7 +294,7 @@ getTitleFromId id blogIndex =
             currentBlogPost.name
 
         Nothing ->
-            "Kunne ikke laste tittel"
+            "Unable to load title"
 
 
 apiKey : String
