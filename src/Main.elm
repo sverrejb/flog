@@ -194,8 +194,8 @@ viewBlogListItem name id date =
     li [] [ a [ href ("/post/" ++ id) ] [ text (name ++ " - " ++ date) ] ]
 
 
-viewBlogPost : Model -> Html Msg
-viewBlogPost model =
+viewBlogPost : Model -> String -> Html Msg
+viewBlogPost model route =
     case model.currentBlogPost of
         ContentFailure ->
             div [] [ text "Error loading blogpost" ]
@@ -204,7 +204,8 @@ viewBlogPost model =
             viewSpinner
 
         ContentSuccess content ->
-            pre [] [ text content ]
+            div [] [h2 [] [ text route], pre [] [ text content ]]
+            
 
 
 viewMainContent : Model -> Html Msg
@@ -213,8 +214,8 @@ viewMainContent model =
         Just RootRoute ->
             viewBlogIndex model
 
-        Just (BlogPostRoute _) ->
-            viewBlogPost model
+        Just (BlogPostRoute route) ->
+            viewBlogPost model route
 
         Nothing ->
             text "404"
