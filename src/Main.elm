@@ -128,8 +128,11 @@ update msg model =
                     ( { model | currentBlogPost = ContentFailure }, Cmd.none )
 
         UrlChanged url ->
-            let newUrl = UrlParser.parse routeParser url in
-            ( { model | url = newUrl, currentBlogPost = ContentLoading }, getBlogPost newUrl)
+            let
+                newUrl =
+                    UrlParser.parse routeParser url
+            in
+            ( { model | url = newUrl, currentBlogPost = ContentLoading }, getBlogPost newUrl )
 
         LinkClicked urlRequest ->
             case urlRequest of
@@ -149,8 +152,8 @@ view model =
     { title = blogTitle
     , body =
         [ div []
-            [ div [] [ h1 [] [ a [ href "/" ] [ text "Blag" ] ] ]
-            , div [] [ h2 [] [ text "Interesting ramblings" ], viewMainContent model ]
+            [ div [] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ] ]
+            , div [] [ viewMainContent model ]
             , div [] [ h2 [] [ text "Footer? Footer." ] ]
             ]
         ]
@@ -162,7 +165,7 @@ viewSpinner =
     div []
         [ Loading.render
             Spinner
-            { defaultConfig | color = "#000000" }
+            { defaultConfig | color = "#444444" }
             Loading.On
         ]
 
@@ -180,7 +183,7 @@ viewBlogIndex model =
             viewSpinner
 
         Success blogPosts ->
-            viewBlogpostList blogPosts
+            div [] [ h2 [] [ text "Interesting ramblings" ], viewBlogpostList blogPosts ]
 
 
 viewBlogpostList : List BlogIndexItem -> Html Msg
@@ -195,17 +198,31 @@ viewBlogListItem name id date =
 
 
 viewBlogPost : Model -> String -> Html Msg
-viewBlogPost model route =
-    case model.currentBlogPost of
-        ContentFailure ->
-            div [] [ text "Error loading blogpost" ]
-
-        ContentLoading ->
+viewBlogPost model id =
+    case model.blogIndex of
+        Loading ->
             viewSpinner
 
-        ContentSuccess content ->
-            div [] [h2 [] [ text route], pre [] [ text content ]]
-            
+        Failure ->
+            div []
+                [ text "Unable to load blogposts"
+                , button [ onClick FetchBlogpostsIndex ] [ text "Try Again!" ]
+                ]
+
+        Success blogPosts ->
+            let
+                title =
+                    getTitleFromId id blogPosts
+            in
+            case model.currentBlogPost of
+                ContentFailure ->
+                    div [] [ text "Error loading blogpost" ]
+
+                ContentLoading ->
+                    viewSpinner
+
+                ContentSuccess content ->
+                    div [] [ h2 [] [ text title ], pre [] [ text content ] ]
 
 
 viewMainContent : Model -> Html Msg
@@ -268,6 +285,16 @@ getBlogPost url =
 getIDfromUrl : String -> Maybe String
 getIDfromUrl url =
     List.head (List.reverse (String.split "/" url))
+
+
+getTitleFromId : String -> List BlogIndexItem -> String
+getTitleFromId id blogIndex =
+    case List.head (List.filter (\b -> b.id == id) blogIndex) of
+        Just currentBlogPost ->
+            currentBlogPost.name
+
+        Nothing ->
+            "Kunne ikke laste tittel"
 
 
 apiKey : String
