@@ -1,0 +1,46 @@
+body {
+	margin: 40px auto;
+	font-family: 'Open Sans', sans-serif;
+	max-width: 650px;
+	line-height: 1.6;
+	font-size: 18px;
+	color: #454545;
+	padding: 0 10px;
+	background-color: #eee
+}
+
+pre {
+   font-family: 'Open Sans', sans-serif;
+   overflow-wrap: normal
+}
+
+ul {
+	padding-left: 0;
+}
+
+#header a{
+	font-family: 'Economica', sans-serif;
+   color: #69a0a5;
+   font-weight: 700;
+   font-size: 4rem
+}
+
+h2,
+h3 {
+	font-family: 'Economica', sans-serif;
+	line-height: 1.2;
+	color: #454545
+}
+
+a,
+a:visited,
+a:hover,
+a:active {
+	color: #454545;
+	text-decoration: none;
+}
+
+li {
+	list-style-type: none;
+}
+
