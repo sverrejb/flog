@@ -253,30 +253,26 @@ getBlogList =
 getBlogPost : Maybe Route -> Cmd Msg
 getBlogPost url =
     case url of
-        Just route ->
-            case route of
-                BlogPostRoute path ->
-                    let
-                        id =
-                            getIDfromUrl path
-                    in
-                    case id of
-                        Just blogId ->
-                            case blogId of
-                                "" ->
-                                    Cmd.none
-
-                                _ ->
-                                    Http.get
-                                        { url = interpolate blogPostURI [ blogId, apiKey ]
-                                        , expect = Http.expectString GotBlogPost
-                                        }
-
-                        Nothing ->
-                            Cmd.none
-
-                RootRoute ->
+        Just (BlogPostRoute path) ->
+            let
+                id =
+                    getIDfromUrl path
+            in
+            case id of
+                Just "" ->
                     Cmd.none
+
+                Just blogId ->
+                    Http.get
+                        { url = interpolate blogPostURI [ blogId, apiKey ]
+                        , expect = Http.expectString GotBlogPost
+                        }
+
+                Nothing ->
+                    Cmd.none
+
+        Just RootRoute ->
+            Cmd.none
 
         Nothing ->
             Cmd.none
