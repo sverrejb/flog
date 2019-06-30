@@ -17,9 +17,8 @@ import String.Interpolate exposing (interpolate)
 import Url
 import Url.Parser as UrlParser exposing ((</>), (<?>), Parser, int, map, oneOf, s, string, top)
 import Url.Parser.Query as Query
-
-
-
+import Iso8601 as Iso
+import Time exposing (Posix, utc)
 -- MAIN
 
 
@@ -67,7 +66,7 @@ type BlogItemContent
 type alias BlogIndexItem =
     { name : String
     , id : String
-    , date : String
+    , date : Posix
     }
 
 
@@ -192,9 +191,9 @@ viewBlogpostList lst =
         (List.map (\l -> viewBlogListItem l.name l.id l.date) lst)
 
 
-viewBlogListItem : String -> String -> String -> Html Msg
+viewBlogListItem : String -> String -> Posix -> Html Msg
 viewBlogListItem name id date =
-    li [] [ a [ href ("/post/" ++ id) ] [ text (name ++ " - " ++ date) ] ]
+    li [] [ a [ href ("/post/" ++ id) ] [ text (name ++ " - " ++ (String.fromInt (Time.toYear utc date))) ] ]
 
 
 viewBlogPost : Model -> String -> Html Msg
@@ -334,4 +333,4 @@ blogPostDecoder =
         BlogIndexItem
         (Decode.at [ "name" ] Decode.string)
         (Decode.at [ "id" ] Decode.string)
-        (Decode.at [ "createdTime" ] Decode.string)
+        (Decode.at [ "createdTime" ] Iso.decoder)

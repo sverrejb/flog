@@ -3,4 +3,4 @@
 A "frontend only" blog written in Elm using Google Drive as the CMS.
 
 ## Development
-Serve live with `elm-live src/Main.elm --dir=dist --open --start-page=index.html -- --output=dist/main.js`
+Serve live with `elm-live src/Main.elm --dir=dist --open --start-page=index.html -- --output=dist/static/main.js`
