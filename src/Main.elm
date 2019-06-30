@@ -18,7 +18,7 @@ import Url
 import Url.Parser as UrlParser exposing ((</>), (<?>), Parser, int, map, oneOf, s, string, top)
 import Url.Parser.Query as Query
 import Iso8601 as Iso
-import Time exposing (Posix, utc)
+import Time exposing (Posix, utc, Month(..))
 -- MAIN
 
 
@@ -193,7 +193,7 @@ viewBlogpostList lst =
 
 viewBlogListItem : String -> String -> Posix -> Html Msg
 viewBlogListItem name id date =
-    li [] [ a [ href ("/post/" ++ id) ] [ text (name ++ " - " ++ (String.fromInt (Time.toYear utc date))) ] ]
+    li [] [ a [ href ("/post/" ++ id) ] [ text (name ++ " - " ++ formatDate date) ] ]
 
 
 viewBlogPost : Model -> String -> Html Msg
@@ -280,6 +280,33 @@ getBlogPost url =
 getIDfromUrl : String -> Maybe String
 getIDfromUrl url =
     List.head (List.reverse (String.split "/" url))
+
+formatDate : Posix -> String
+formatDate date = 
+    let 
+        year = String.fromInt (Time.toYear utc date)
+        month = toMonthNumber (Time.toMonth utc date)
+        day = String.fromInt (Time.toDay utc date)
+    in
+        day ++ "." ++ month ++ "." ++ year
+
+
+toMonthNumber : Month -> String
+toMonthNumber month =
+  case month of
+    Jan -> "01"
+    Feb -> "02"
+    Mar -> "03"
+    Apr -> "04"
+    May -> "05"
+    Jun -> "06"
+    Jul -> "07"
+    Aug -> "08"
+    Sep -> "09"
+    Oct -> "10"
+    Nov -> "11"
+    Dec -> "12"
+
 
 
 getTitleFromId : String -> List BlogIndexItem -> String
