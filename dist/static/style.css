@@ -11,12 +11,16 @@ body {
     display: grid;
     height: 100vh;
     grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 10rem 1fr 10rem;
-    grid-template-areas: ". Header Header." ". Content Content ." ". Footer Footer .";
+    grid-template-rows: auto 1fr 10rem;
+    grid-template-areas: ". Header Header ." ". Content Content ." ". Footer Footer .";
 }
 
 .header {
-    grid-area: Header;
+    grid-area: Header
+}
+
+.header h1 {
+    margin: 0
 }
 
 .header h1 a {
@@ -24,6 +28,13 @@ body {
     color: #69a0a5;
     font-weight: 700;
     font-size: 4rem
+}
+
+.header h2 {
+    color: #454545;
+    margin: 0;
+    font-family: 'Economica', sans-serif;
+    font-size: 2rem;
 }
 
 .content {
@@ -44,10 +55,8 @@ ul {
     padding-left: 0;
 }
 
-h2,
 h3 {
     font-family: 'Economica', sans-serif;
-    line-height: 1.2;
     color: #454545
 }
 
@@ -67,7 +76,10 @@ li {
     .grid-container {
         margin: 0 2rem 0 2rem;
         grid-template-columns: 1fr;
-        grid-template-rows: 10rem 1fr 10rem;
+        grid-template-rows: auto 1fr 10rem;
         grid-template-areas: "Header" "Content" "Footer";
+    }
+    .header h2 {
+        font-size: 2rem
     }
 }

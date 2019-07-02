@@ -154,7 +154,7 @@ view model =
     { title = blogTitle
     , body =
         [ div [ class "grid-container"]
-            [ div [ class "header" ] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ] ]
+            [ div [ class "header" ] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ], h2 [] [ text "Interesting ramblings" ] ]
             , div [ class "content" ] [ viewMainContent model ]
             , div [class "footer" ] [ h2 [] [ text "Footer? Footer." ] ]
             ]
@@ -185,7 +185,7 @@ viewBlogIndex model =
             viewSpinner
 
         Success blogPosts ->
-            div [] [ h2 [] [ text "Interesting ramblings" ], viewBlogpostList blogPosts ]
+            div [] [ viewBlogpostList blogPosts ]
 
 
 viewBlogpostList : List BlogIndexItem -> Html Msg
