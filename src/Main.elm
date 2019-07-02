@@ -2,7 +2,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, button, div, h1, h2, h3, i, li, p, pre, span, text, ul)
+import Html exposing (Html, a, br, button, div, h1, h2, h3, i, li, p, pre, span, text, ul)
 import Html.Attributes exposing (class, href, id)
 import Html.Events exposing (onClick)
 import Http
@@ -153,10 +153,10 @@ view : Model -> Browser.Document Msg
 view model =
     { title = blogTitle
     , body =
-        [ div [ class "grid-container"]
+        [ div [ class "grid-container" ]
             [ div [ class "header" ] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ], h3 [] [ text "Interesting ramblings" ] ]
             , div [ class "content" ] [ viewMainContent model ]
-            , div [class "footer" ] [ text "2019 © Sverre" ]
+            , div [ class "footer" ] [ text "2019 © Sverre" ]
             ]
         ]
     }
@@ -165,7 +165,8 @@ view model =
 viewSpinner : Html Msg
 viewSpinner =
     div []
-        [ Loading.render
+        [ br [] []
+        , Loading.render
             Spinner
             { defaultConfig | color = "#444444" }
             Loading.On
@@ -196,7 +197,7 @@ viewBlogpostList lst =
 
 viewBlogListItem : String -> String -> Posix -> Html Msg
 viewBlogListItem name id date =
-    li [] [ a [ href ("/post/" ++ id) ] [ span [ class "blogpost-title"] [text (name), span [ class "blogpost-date"] [text (" | " ++ (formatDate date)) ] ] ] ]
+    li [] [ a [ href ("/post/" ++ id) ] [ span [ class "blogpost-title" ] [ text name, span [ class "blogpost-date" ] [ text (" | " ++ formatDate date) ] ] ] ]
 
 
 viewBlogPost : Model -> String -> Html Msg

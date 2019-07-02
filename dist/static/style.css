@@ -14,9 +14,9 @@ body {
 .grid-container {
     display: grid;
     height: 100vh;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: auto 1fr auto;
-    grid-template-areas: ". Header Header ." ". Content Content ." ". Footer Footer .";
+    grid-template-areas: ". Header ." ". Content ." ". Footer .";
 }
 
 .header {
