@@ -2,7 +2,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, button, div, h1, h2, h3, li, pre, text, ul)
+import Html exposing (Html, a, button, div, h1, h2, h3, i, li, p, pre, span, text, ul)
 import Html.Attributes exposing (class, href, id)
 import Html.Events exposing (onClick)
 import Http
@@ -196,7 +196,7 @@ viewBlogpostList lst =
 
 viewBlogListItem : String -> String -> Posix -> Html Msg
 viewBlogListItem name id date =
-    li [] [ a [ href ("/post/" ++ id) ] [ text (name ++ " - " ++ formatDate date) ] ]
+    li [] [ a [ href ("/post/" ++ id) ] [ span [ class "blogpost-title"] [text (name), span [ class "blogpost-date"] [text (" | " ++ (formatDate date)) ] ] ] ]
 
 
 viewBlogPost : Model -> String -> Html Msg

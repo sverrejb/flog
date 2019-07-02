@@ -6,6 +6,11 @@ body {
     background-color: #eee
 }
 
+.blogpost-date {
+    font-size: 0.85rem;
+    filter: brightness(250%);
+}
+
 .grid-container {
     display: grid;
     height: 100vh;
