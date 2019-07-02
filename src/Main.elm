@@ -2,7 +2,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, button, div, h1, h2, li, pre, text, ul)
+import Html exposing (Html, a, button, div, h1, h2, h3, li, pre, text, ul)
 import Html.Attributes exposing (class, href, id)
 import Html.Events exposing (onClick)
 import Http
@@ -154,9 +154,9 @@ view model =
     { title = blogTitle
     , body =
         [ div [ class "grid-container"]
-            [ div [ class "header" ] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ], h2 [] [ text "Interesting ramblings" ] ]
+            [ div [ class "header" ] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ], h3 [] [ text "Interesting ramblings" ] ]
             , div [ class "content" ] [ viewMainContent model ]
-            , div [class "footer" ] [ h2 [] [ text "Footer? Footer." ] ]
+            , div [class "footer" ] [ text "2019 © Sverre" ]
             ]
         ]
     }
@@ -224,7 +224,7 @@ viewBlogPost model id =
                     viewSpinner
 
                 ContentSuccess content ->
-                    div [] [ h2 [] [ text title ], pre [] [ text content ] ]
+                    div [] [ h3 [] [ text title ], pre [] [ text content ] ]
 
 
 viewMainContent : Model -> Html Msg
