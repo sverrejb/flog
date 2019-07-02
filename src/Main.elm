@@ -3,7 +3,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 import Browser
 import Browser.Navigation as Nav
 import Html exposing (Html, a, button, div, h1, h2, li, pre, text, ul)
-import Html.Attributes exposing (href, id)
+import Html.Attributes exposing (class, href, id)
 import Html.Events exposing (onClick)
 import Http
 import Iso8601 as Iso
@@ -153,10 +153,10 @@ view : Model -> Browser.Document Msg
 view model =
     { title = blogTitle
     , body =
-        [ div []
-            [ div [] [ h1 [ id "header" ] [ a [ href "/" ] [ text "Blog" ] ] ]
-            , div [] [ viewMainContent model ]
-            , div [] [ h2 [] [ text "Footer? Footer." ] ]
+        [ div [ class "grid-container"]
+            [ div [ class "header" ] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ] ]
+            , div [ class "content" ] [ viewMainContent model ]
+            , div [class "footer" ] [ h2 [] [ text "Footer? Footer." ] ]
             ]
         ]
     }
