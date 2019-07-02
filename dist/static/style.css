@@ -43,6 +43,7 @@ body {
 
 .footer {
     grid-area: Footer;
+    border-top: 0.1rem dashed #69a0a5;
 }
 
 pre {
