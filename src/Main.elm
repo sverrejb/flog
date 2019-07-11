@@ -172,8 +172,9 @@ viewSpinner =
             Loading.On
         ]
 
+
 viewError : String -> String -> Html Msg
-viewError statusCode message = 
+viewError statusCode message =
     div [ class "error" ] [ div [ class "jumbotron" ] [ text statusCode ], div [] [ text message ] ]
 
 
@@ -226,7 +227,7 @@ viewBlogPost model id =
                     viewSpinner
 
                 ContentSuccess content ->
-                    div [] [ h3 [] [ text title ], div [] (List.map (\paragraph -> p [] [ text paragraph ]) (String.split "\n" content)) ]
+                    div [] [ h3 [] [ text title ], div [] (List.map (\paragraph -> p [] [ text paragraph ]) <| List.filter (\x -> String.length x /= 1) <| String.split "\n" content) ]
 
 
 viewMainContent : Model -> Html Msg
@@ -240,6 +241,7 @@ viewMainContent model =
 
         Nothing ->
             viewError "404" "Not Found"
+
 
 
 -- HTTP
