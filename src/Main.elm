@@ -225,7 +225,7 @@ viewBlogPost model id =
                     viewSpinner
 
                 ContentSuccess content ->
-                    div [] [ h3 [] [ text title ], pre [] [ text content ] ]
+                    div [] [ h3 [] [ text title ], div [] (List.map (\paragraph -> p [] [ text paragraph ]) (String.split "\n" content)) ]
 
 
 viewMainContent : Model -> Html Msg

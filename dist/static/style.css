@@ -20,7 +20,8 @@ body {
 }
 
 .header {
-    grid-area: Header
+    grid-area: Header;
+    border-bottom: 0.1rem dashed #69a0a5;
 }
 
 .header h1 {
@@ -62,11 +63,6 @@ pre {
 
 ul {
     padding-left: 0;
-}
-
-h2 {
-    font-family: 'Economica', sans-serif;
-    color: #454545
 }
 
 a,
