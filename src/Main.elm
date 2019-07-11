@@ -285,7 +285,7 @@ getBlogPost url =
 
 getIDfromUrl : String -> Maybe String
 getIDfromUrl url =
-    List.head (List.reverse (String.split "/" url))
+    String.split "/" url |> List.reverse |> List.head 
 
 
 formatDate : Posix -> String

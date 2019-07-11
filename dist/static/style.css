@@ -93,7 +93,7 @@ li {
     .header h3 {
         font-size: 2rem
     }
-    pre {
+    .content {
         min-width: 0
     }
 }
