@@ -6,6 +6,16 @@ body {
     background-color: #eee
 }
 
+.error {
+    text-align: center;
+}
+
+.jumbotron {
+    font-size: 16rem;
+    font-weight: 300;
+
+}
+
 .blogpost-date {
     font-size: 0.85rem;
     filter: brightness(250%);
@@ -44,6 +54,8 @@ body {
 
 .content {
     grid-area: Content;
+    max-width: 50rem;
+    min-width: 40rem;
 }
 
 .footer {
@@ -53,13 +65,6 @@ body {
     text-align: center;
 }
 
-pre {
-    font-family: 'Open Sans', sans-serif;
-    overflow-wrap: normal;
-    white-space: pre-wrap;
-    max-width: 50rem;
-    min-width: 40rem;
-}
 
 ul {
     padding-left: 0;

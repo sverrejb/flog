@@ -2,7 +2,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, br, button, div, h1, h2, h3, i, li, p, pre, span, text, ul)
+import Html exposing (Html, a, br, button, div, h1, h2, h3, i, li, p, span, text, ul)
 import Html.Attributes exposing (class, href, id)
 import Html.Events exposing (onClick)
 import Http
@@ -168,19 +168,20 @@ viewSpinner =
         [ br [] []
         , Loading.render
             Spinner
-            { defaultConfig | color = "#444444" }
+            { defaultConfig | color = "#454545" }
             Loading.On
         ]
+
+viewError : String -> String -> Html Msg
+viewError statusCode message = 
+    div [ class "error" ] [ div [ class "jumbotron" ] [ text statusCode ], div [] [ text message ] ]
 
 
 viewBlogIndex : Model -> Html Msg
 viewBlogIndex model =
     case model.blogIndex of
         Failure ->
-            div []
-                [ text "Unable to load blogposts"
-                , button [ onClick FetchBlogpostsIndex ] [ text "Try Again!" ]
-                ]
+            viewError "500" "Error loading blog"
 
         Loading ->
             viewSpinner
@@ -219,7 +220,7 @@ viewBlogPost model id =
             in
             case model.currentBlogPost of
                 ContentFailure ->
-                    div [] [ text "Error loading blogpost" ]
+                    viewError "404" "Blogpost not found"
 
                 ContentLoading ->
                     viewSpinner
@@ -238,8 +239,7 @@ viewMainContent model =
             viewBlogPost model route
 
         Nothing ->
-            text "404"
-
+            viewError "404" "Not Found"
 
 
 -- HTTP
