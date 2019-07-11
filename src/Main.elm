@@ -345,7 +345,7 @@ toMonthNumber month =
 
 getTitleFromId : String -> List BlogIndexItem -> String
 getTitleFromId id blogIndex =
-    case List.head (List.filter (\b -> b.id == id) blogIndex) of
+    case List.filter (\b -> b.id == id) blogIndex |> List.head of
         Just currentBlogPost ->
             currentBlogPost.name
 
