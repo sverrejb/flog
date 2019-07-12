@@ -37,6 +37,11 @@ main =
         }
 
 
+init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init _ url key =
+    ( Model key (UrlParser.parse routeParser url) Loading ContentLoading, getBlogList )
+
+
 
 -- MODEL
 
@@ -79,12 +84,6 @@ routeParser =
         [ map RootRoute top
         , map BlogPostRoute (s "post" </> string)
         ]
-
-
-init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init _ url key =
-    ( Model key (UrlParser.parse routeParser url) Loading ContentLoading, getBlogList )
-
 
 
 -- UPDATE
@@ -224,7 +223,7 @@ viewBlogPost model id =
 
 viewBlogPostParagraphs : String -> List (Html Msg)
 viewBlogPostParagraphs content =
-    List.map (\paragraph -> p [] [ text paragraph ]) <| splitBlogTextIntoParagraphs content
+    splitBlogTextIntoParagraphs content |> List.map (\paragraph -> p [] [ text paragraph ])
 
 
 viewMainContent : Model -> Html Msg
@@ -356,7 +355,7 @@ getTitleFromId id blogIndex =
 
 splitBlogTextIntoParagraphs : String -> List String
 splitBlogTextIntoParagraphs blogtext =
-    List.filter (\x -> String.length x /= 0) <| String.lines blogtext
+    String.lines blogtext |> List.filter (\x -> String.length x /= 0)
 
 
 
