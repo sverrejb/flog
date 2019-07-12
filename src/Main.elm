@@ -2,7 +2,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, br, button, div, h1, h2, h3, i, li, p, span, text, ul)
+import Html exposing (Html, a, article, br, button, div, footer, h1, h2, h3, header, i, li, main_, p, span, text, ul)
 import Html.Attributes exposing (class, href, id)
 import Html.Events exposing (onClick)
 import Http
@@ -154,9 +154,9 @@ view model =
     { title = blogTitle
     , body =
         [ div [ class "grid-container" ]
-            [ div [ class "header" ] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ], h3 [] [ text "Interesting ramblings" ] ]
-            , div [ class "content" ] [ viewMainContent model ]
-            , div [ class "footer" ] [ text "2019 © Sverre" ]
+            [ header [ class "header" ] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ], h3 [] [ text "Interesting ramblings" ] ]
+            , main_ [ class "content" ] [ viewMainContent model ]
+            , footer [ class "footer" ] [ text "2019 © Sverre" ]
             ]
         ]
     }
@@ -227,7 +227,12 @@ viewBlogPost model id =
                     viewSpinner
 
                 ContentSuccess content ->
-                    div [] [ h3 [] [ text title ], div [] (List.map (\paragraph -> p [] [ text paragraph ]) <| List.filter (\x -> String.length x /= 1) <| String.split "\n" content) ]
+                    article []  <| [ h3 [] [ text title ] ] ++ viewBlogPostParagraphs content
+
+
+viewBlogPostParagraphs : String -> List (Html Msg)
+viewBlogPostParagraphs content =
+    List.map (\paragraph -> p [] [ text paragraph ]) <|  splitBlogTextToParagraphs content
 
 
 viewMainContent : Model -> Html Msg
@@ -283,9 +288,13 @@ getBlogPost url =
             Cmd.none
 
 
+
+-- HELPERS
+
+
 getIDfromUrl : String -> Maybe String
 getIDfromUrl url =
-    String.split "/" url |> List.reverse |> List.head 
+    String.split "/" url |> List.reverse |> List.head
 
 
 formatDate : Posix -> String
@@ -353,6 +362,34 @@ getTitleFromId id blogIndex =
             "Unable to load title"
 
 
+splitBlogTextToParagraphs : String -> List String
+splitBlogTextToParagraphs blogtext = 
+    List.filter (\x -> String.length x /= 0) <| String.lines blogtext
+
+
+
+
+-- JSON
+
+
+blogDecoder : Decoder (List BlogIndexItem)
+blogDecoder =
+    Decode.at [ "files" ] (Decode.list blogPostDecoder)
+
+
+blogPostDecoder : Decoder BlogIndexItem
+blogPostDecoder =
+    Decode.map3
+        BlogIndexItem
+        (Decode.at [ "name" ] Decode.string)
+        (Decode.at [ "id" ] Decode.string)
+        (Decode.at [ "createdTime" ] Iso.decoder)
+
+
+
+-- CONSTS
+
+
 apiKey : String
 apiKey =
     "AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
@@ -361,11 +398,6 @@ apiKey =
 blogRootDirectoryId : String
 blogRootDirectoryId =
     "'1pOJUeCNvFbHEbPxM4FkL8fePbZ4Ct_Ak'"
-
-
-googleDriveFilesURI : String
-googleDriveFilesURI =
-    "https://www.googleapis.com/drive/v3/files"
 
 
 blogDirectoryURI : String
@@ -383,15 +415,6 @@ blogPostListURI =
     interpolate blogDirectoryURI [ blogRootDirectoryId, apiKey ]
 
 
-blogDecoder : Decoder (List BlogIndexItem)
-blogDecoder =
-    Decode.at [ "files" ] (Decode.list blogPostDecoder)
-
-
-blogPostDecoder : Decoder BlogIndexItem
-blogPostDecoder =
-    Decode.map3
-        BlogIndexItem
-        (Decode.at [ "name" ] Decode.string)
-        (Decode.at [ "id" ] Decode.string)
-        (Decode.at [ "createdTime" ] Iso.decoder)
+googleDriveFilesURI : String
+googleDriveFilesURI =
+    "https://www.googleapis.com/drive/v3/files"
