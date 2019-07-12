@@ -2,7 +2,7 @@ module Main exposing (BlogIndexItem, Model, Msg(..), blogDecoder, blogPostDecode
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, article, br, button, div, footer, h1, h2, h3, header, i, li, main_, p, span, text, ul)
+import Html exposing (Html, a, article, br, button, div, footer, h1, h2, h3, header, i, li, main_, nav, p, span, text, time, ul)
 import Html.Attributes exposing (class, href, id)
 import Html.Events exposing (onClick)
 import Http
@@ -35,11 +35,6 @@ main =
         , onUrlChange = UrlChanged
         , onUrlRequest = LinkClicked
         }
-
-
-blogTitle : String
-blogTitle =
-    "Sverres blog"
 
 
 
@@ -188,7 +183,7 @@ viewBlogIndex model =
             viewSpinner
 
         Success blogPosts ->
-            div [] [ viewBlogpostList blogPosts ]
+            nav [] [ viewBlogpostList blogPosts ]
 
 
 viewBlogpostList : List BlogIndexItem -> Html Msg
@@ -199,7 +194,7 @@ viewBlogpostList lst =
 
 viewBlogListItem : String -> String -> Posix -> Html Msg
 viewBlogListItem name id date =
-    li [] [ a [ href ("/post/" ++ id) ] [ span [ class "blogpost-title" ] [ text name, span [ class "blogpost-date" ] [ text (" | " ++ formatDate date) ] ] ] ]
+    li [] [ a [ href ("/post/" ++ id) ] [ span [ class "blogpost-title" ] [ text name, time [ class "blogpost-date" ] [ text (" | " ++ formatDate date) ] ] ] ]
 
 
 viewBlogPost : Model -> String -> Html Msg
@@ -209,10 +204,7 @@ viewBlogPost model id =
             viewSpinner
 
         Failure ->
-            div []
-                [ text "Unable to load blogposts"
-                , button [ onClick FetchBlogpostsIndex ] [ text "Try Again!" ]
-                ]
+            viewError "500" "Error loading blog"
 
         Success blogPosts ->
             let
@@ -227,12 +219,12 @@ viewBlogPost model id =
                     viewSpinner
 
                 ContentSuccess content ->
-                    article []  <| [ h3 [] [ text title ] ] ++ viewBlogPostParagraphs content
+                    article [] <| h3 [] [ text title ] :: viewBlogPostParagraphs content
 
 
 viewBlogPostParagraphs : String -> List (Html Msg)
 viewBlogPostParagraphs content =
-    List.map (\paragraph -> p [] [ text paragraph ]) <|  splitBlogTextToParagraphs content
+    List.map (\paragraph -> p [] [ text paragraph ]) <| splitBlogTextIntoParagraphs content
 
 
 viewMainContent : Model -> Html Msg
@@ -362,10 +354,9 @@ getTitleFromId id blogIndex =
             "Unable to load title"
 
 
-splitBlogTextToParagraphs : String -> List String
-splitBlogTextToParagraphs blogtext = 
+splitBlogTextIntoParagraphs : String -> List String
+splitBlogTextIntoParagraphs blogtext =
     List.filter (\x -> String.length x /= 0) <| String.lines blogtext
-
 
 
 
@@ -393,6 +384,11 @@ blogPostDecoder =
 apiKey : String
 apiKey =
     "AIzaSyDOw0EmUh-dNvg3qXvJ7ewkZNJgTIxtK_o"
+
+
+blogTitle : String
+blogTitle =
+    "Sverres blog"
 
 
 blogRootDirectoryId : String
