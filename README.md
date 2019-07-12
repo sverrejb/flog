@@ -4,3 +4,8 @@ A blog written in Elm using Google Drive as the CMS.
 
 ## Development
 Serve live with `elm-live src/Main.elm -u --dir=dist --open --start-page=index.html -- --output=dist/static/main.js`
+
+## Roadmap
+* BEM-css
+* Hold article text as part of blog-item in model
+* Move things into modules
