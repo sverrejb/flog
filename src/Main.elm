@@ -82,7 +82,7 @@ routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
         [ map RootRoute top
-        , map BlogPostRoute (s "post" </> string)
+        , map BlogPostRoute (s "post" </> UrlParser.string)
         ]
 
 
