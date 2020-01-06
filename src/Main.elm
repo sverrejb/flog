@@ -150,7 +150,7 @@ view model =
         [ div [ class "grid-container" ]
             [ header [ class "header" ] [ h1 [] [ a [ href "/" ] [ text "Blog" ] ], h3 [] [ text "Interesting ramblings" ] ]
             , main_ [ class "content" ] [ viewMainContent model ]
-            , footer [ class "footer" ] [ text "2019 © Sverre" ]
+            , footer [ class "footer" ] [ text "2020 © Sverre" ]
             ]
         ]
     }
